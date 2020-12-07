@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Exuppgift2.iml" filepath="$PROJECT_DIR$/.idea/Exuppgift2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Exuppgift2 - Gym WakeUp/Exuppgift2 - Gym WakeUp.iml" filepath="$PROJECT_DIR$/Exuppgift2 - Gym WakeUp/Exuppgift2 - Gym WakeUp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Gym WakeUp/Gym WakeUp.iml" filepath="$PROJECT_DIR$/Gym WakeUp/Gym WakeUp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Gym WakeUp  Exuppgift2/Gym WakeUp  Exuppgift2.iml" filepath="$PROJECT_DIR$/Gym WakeUp  Exuppgift2/Gym WakeUp  Exuppgift2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Gym WakeUp - Exuppgift2/Gym WakeUp - Exuppgift2.iml" filepath="$PROJECT_DIR$/Gym WakeUp - Exuppgift2/Gym WakeUp - Exuppgift2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Myproject/Myproject.iml" filepath="$PROJECT_DIR$/Myproject/Myproject.iml" />
+    </modules>
+  </component>
+</project>
