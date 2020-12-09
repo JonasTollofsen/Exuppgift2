@@ -17,17 +17,17 @@ public class Account {
             System.out.println("Du är redan medlem");
         } else {
             do {
-                System.out.println("Please enter your Personnummer in the following format YYMMDD-XXXX: ");
+                System.out.println("Vänligen ange personnummer in följande format ÅÅMMDD-XXXX: ");
                 personnummerAttempt = userInput.nextLine();
                 personnummerControl = luhnAlgorithm(personnummerAttempt);
                 if (personnummerControl == false) {
-                    System.out.println("Incorrect personnummer, please try again");
+                    System.out.println("Felaktigt personnummer, vänligen försök igen");
                 } else {
                     this.setPersonNummer(personnummerAttempt);
                 }
             }
             while (personnummerControl == false);
-            System.out.println("Please choose a password: ");
+            System.out.println("Vänligen ange lösenord: ");
             this.setAccountPassword(userInput.next());
 
             System.out.println("");
@@ -81,14 +81,14 @@ public class Account {
             System.out.println("Du är redan inloggad");
         } else {
 
-            System.out.println("Please login");
+            System.out.println("Vänligen logga in");
             System.out.println("Personnummer: ");
             personnummerAttempt = userInput.next();
-            System.out.println("Password: ");
+            System.out.println("Lösenord: ");
             passwordAttempt = userInput.next();
             if (personnummerAttempt.equals(this.getPersonNummer()) && (passwordAttempt.equals(this.getAccountPassword()))) {
                 this.setStatus(true);
-                System.out.println("Welcome!");
+                System.out.println("Välkommen!");
             } else {
                 System.out.println("Fel inloggning!");
             }
@@ -106,24 +106,35 @@ public class Account {
     }
 
     public static boolean luhnAlgorithm(String persnummer) {
-        boolean result; // result variable gets created, this will later be returned after the method finishes
+        boolean result; // Result-variabel skapas, denna kommer senare att returneras när metoden avslutas
 
-        //if-statement that ensures that the length is fitting, if not, returns false and ends the method
+        //if villkor som ser till att längden på det personnummer användaren har angivit passar, dvs. är 11 bokstäver
         if (persnummer.length() != 11){
             result = false;
-            return result;
+            return result; // om längden är felaktig returneras false och metoden avslutas
         }
-        char[] persnummertoChar = removeCharAt(persnummer).toCharArray();// Removing the hyphen or "+" from the String personnummer with the method removeCharAt and converting the result into a charArray
-        int[] persnummerToInt = new int[persnummertoChar.length]; // initializing an intArray that will be used to multiply the values later on. Due to the use of charArray all numbers from the personnummer will be separate values in the array
 
-        //for-loop to enter the charArray values into the intArray
+        /*
+        Tar bort strecket (-) eller + från strängen persnummer med metoden removeCharAt och lägger in
+        resultatet i ett charArray
+        */
+        char[] persnummertoChar = removeCharAt(persnummer).toCharArray();
+
+        /*
+        initialiserar ett intArray som kommer att användas för att multiplicera värden i den andra kommande for-loop
+        Pågrund av att ett charArray har använts kommer alla nummer att hanteras individuellt
+        */
+        int[] persnummerToInt = new int[persnummertoChar.length];
+
+        // for-loop för att lägga in alla värden från charArray in till intArray som skapades ovan
         for (int i = 0; i < persnummerToInt.length; i++) {
             persnummerToInt[i] = (int) persnummertoChar[i] - 48;
             // persnummertoChar.getNumericValue(i);
         }
-        int tmp, n = 0;
-        int sum = 0;
-        //for-loop to multiply every other value of the intArray with 2 and every other value with 1
+
+        int tmp, n = 0; //Temporära variabler som används i for-loopen nedan
+        int sum = 0; //Variabel för att slå ihop summan av alla tal
+        //for-loop för att multiplicera vartannat nummer med 2
         for (int i = 0; i < 10; i++) {
             if ((i % 2) == 0) {
                 tmp = persnummerToInt[i] * 2;
@@ -136,21 +147,29 @@ public class Account {
                 tmp = tmp / 10;
             }
         }
-        sum = sum / 10; //Sum gets divided by 10 and stored in the variable
+        sum = sum / 10; //Sum blir dividerat med 10 och lagrat i variabeln (Sum)
 
-        /*if-statment to double check that the value is not zero, as this would make result being true,
-        the user could for example enter 000000-0000 and get a true result without below if-statment*/
+        /*
+        if-villkor för att kolla så att värdet av sum-variabeln inte är noll, då detta skulle ge result = true,
+        Exempelvis skulle användaren kunna ange 000000-0000 som ett äkta personnummer utan nedan if-villkor.
+        */
         if (sum == 0){
             result = false;
             return result;
         }
-        // Nu dags att kolla ifall allt stämmer och att personnumret har rätt summa och är korrekt
+
+        /*
+        if-villkor för att se till att värdet i sum-variabeln är lika stor som om man skulle skicka in variabeln i metoden
+        "floor" i klassen "Math" (Math.floor). Sammafattat kollar detta efter att sum = ett heltal.
+        */
+
         if (sum == Math.floor(sum)) {
             result = true;
         } else result = false;
         return result;
     }
 
+    //Metod för att ta bort strecket(-) eller + från personnumret
     private static String removeCharAt(String s) {
         return s.substring(0, 6) + s.substring(6 + 1);
     }
