@@ -1,34 +1,41 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Account {
-    private String accountPassword;
-    private String personNummer;
+
+    private static ArrayList<String> personnummerList = new ArrayList<String>();
+    private static ArrayList<String> passwordList = new ArrayList<String>();
+    private String[][][] passbokning = new String[3][3][3];
     private boolean status;
+    private String currentlyLoggedIn;
     private int membershipPrice;
     private int membershipLenght;
 
-
-    public void bliMedlem() {
-        Scanner userInput = new Scanner(System.in);
-        String personnummerAttempt;
-        boolean personnummerControl;
-
+    public void bliMedlem() throws Exception {
         if (this.getStatus()) {
-            System.out.println("Du är redan medlem");
+            throw new Exception("Du är inloggad och är redan medlem.");
         } else {
+            Scanner userInput = new Scanner(System.in);
+            String requestedPersonnummer;
+            boolean personnummerControl;
+
             do {
-                System.out.println("Vänligen ange personnummer in följande format ÅÅMMDD-XXXX: ");
-                personnummerAttempt = userInput.nextLine();
-                personnummerControl = luhnAlgorithm(personnummerAttempt);
-                if (personnummerControl == false) {
+                System.out.println("Vänligen ange personnummer i följande format ÅÅMMDD-XXXX: ");
+                requestedPersonnummer = userInput.nextLine();
+                personnummerControl = luhnAlgorithm(requestedPersonnummer);
+                if (!personnummerControl) {
                     System.out.println("Felaktigt personnummer, vänligen försök igen");
-                } else {
-                    this.setPersonNummer(personnummerAttempt);
                 }
-            }
-            while (personnummerControl == false);
+            } while (!personnummerControl);
+
+            if (personnummerCheck(requestedPersonnummer)) {
+                throw new Exception("Personnumret är redan registrerat, vänligen logga in");
+            } else personnummerList.add(requestedPersonnummer);
+
             System.out.println("Vänligen ange lösenord: ");
-            this.setAccountPassword(userInput.next());
+            passwordList.add(requestedPersonnummer + userInput.nextLine());
 
             System.out.println("");
             System.out.println("PRISLISTA:");
@@ -37,8 +44,7 @@ public class Account {
             System.out.println("3-6 månader – 350 SEK/månad");
             System.out.println("7-12 månader – 300 SEK/månad");
             System.out.println("Längre än 12 månader – 250 SEK/månad");
-
-            System.out.println("");
+            System.out.println();
 
             System.out.println("Hur många månader vill du vara medlem: ");
             this.membershipLenght = userInput.nextInt();
@@ -48,7 +54,12 @@ public class Account {
             System.out.println(" SEK");
             System.out.println("Välkommen som medlem!");
         }
+    }
 
+    public boolean personnummerCheck(String username) {
+        if (personnummerList.contains(username)) {
+            return true;
+        } else return false;
     }
 
     public int calcMembership(int months) {
@@ -86,8 +97,10 @@ public class Account {
             personnummerAttempt = userInput.next();
             System.out.println("Lösenord: ");
             passwordAttempt = userInput.next();
-            if (personnummerAttempt.equals(this.getPersonNummer()) && (passwordAttempt.equals(this.getAccountPassword()))) {
-                this.setStatus(true);
+
+            passwordAttempt = personnummerAttempt + passwordAttempt;
+            if (personnummerList.contains(personnummerAttempt) && passwordList.contains(passwordAttempt)){
+                this.setStatus(true, personnummerAttempt);
                 System.out.println("Välkommen!");
             } else {
                 System.out.println("Fel inloggning!");
@@ -95,11 +108,82 @@ public class Account {
         }
     }
 
+    public void loggaut() {
+        setStatus(false, "NULL");
+        System.out.println("Du är utloggad");
+    }
+
     public void bokaPass() {
         if (this.getStatus()) {
-            System.out.println("Boka pass här..");
+            Scanner userInput = new Scanner(System.in);
+            int x, y, z  = 0;
+            boolean success = false;
+            boolean available = false;
+            String val;
+            String[] passtyp = new String[]{"Spinning", "Aerobics", "Yoga"};
+            // Loopa till dess användaren lyckats boka ett pass eller valt att avsluta
+            do {
+                for (int counter = 0; counter <= 2; counter++) {
+                    System.out.printf("%d. %s%n", counter + 1, passtyp[counter]);
+                }
+                System.out.print("Vilket pass vill du boka eller välj 0 för att avsluta? ");
+                x = userInput.nextInt() - 1;
+                if (x >= 0 && x < 3) {    // Kontroll att användaren gjort ett giltigt val
+                    System.out.println();
+                    System.out.println("        a        b        c        ");
+                    for (y = 0; y < 3; y++) {
+                        System.out.printf("Rad %d", y);
+                        for (z = 0; z < 3; z++) {
+                            System.out.printf("TEST %d %d %d", x, y, z);
+                            System.out.println(Arrays.deepToString(passbokning));
+                            if (passbokning[x][y][z].isEmpty()) {
+                                System.out.print("  Ledig  ");
+                                available = true;  // Flagga för att kontrollera så att pass finns att boka
+                            } else {
+                                System.out.print("  Bokad  ");
+                            }
+                        }
+                        System.out.println("");
+                    }
+                    if (available) { // Det finns pass att boka
+                        System.out.println("Vilket pass vill du boka (t ex 2b): ");
+                        val = userInput.nextLine();
+                        // Kontrollera input och splitta upp
 
-
+                        if (val.length() == 2) {
+                            if (val.substring(0, 1).equals("1") || val.substring(0, 1).equals("2") || val.substring(0, 1).equals("3")) {
+                                y = Integer.parseInt(val.substring(0, 1)) - 1;
+                                switch (val.substring(1, 1).toLowerCase()) {
+                                    case "a":
+                                        z = 0;
+                                        break;
+                                    case "b":
+                                        z = 1;
+                                        break;
+                                    case "c":
+                                        z = 2;
+                                }
+                            }
+                        }
+                        // Slutkontroll av alla variabler
+                        if (x <= 2 && x >= 0 && y <= 2 && y >= 0 && z <= 2 && z >= 0) {
+                            if (passbokning[x][y][z].equals("")) {
+                                // Nu är passet ledigt och redo att bokas av användaren
+                                passbokning[x][y][z] = this.getPersonNummer();
+                                success = true;
+                                System.out.printf("Du är nu bokad på %s på plats %s. Välkommen!", passtyp[x], val);
+                            } else {
+                                System.out.println("Tyvärr platsen är bokad. Du måste välja en annan plats.");
+                            }
+                        } else {
+                            System.out.println("Ogiltigt val");
+                        }
+                    } else {
+                        System.out.println("Tyvärr! Det är fullbokat.");
+                    }
+                }
+            }
+            while (!success || x < 0); // Loopa till dess användaren bokat ett pass eller valt att avsluta
         } else {
             System.out.println("Du måste logga in först");
         }
@@ -147,13 +231,14 @@ public class Account {
                 tmp = tmp / 10;
             }
         }
-        sum = sum / 10; //Sum blir dividerat med 10 och lagrat i variabeln (Sum)
+        double sumWithDecimal;
+        sumWithDecimal = (double)sum / 10; //Sum blir dividerat med 10 och lagrat i variabeln (Sum)
 
         /*
         if-villkor för att kolla så att värdet av sum-variabeln inte är noll, då detta skulle ge result = true,
         Exempelvis skulle användaren kunna ange 000000-0000 som ett äkta personnummer utan nedan if-villkor.
         */
-        if (sum == 0){
+        if (sumWithDecimal == 0){
             result = false;
             return result;
         }
@@ -163,7 +248,7 @@ public class Account {
         "floor" i klassen "Math" (Math.floor). Sammafattat kollar detta efter att sum = ett heltal.
         */
 
-        if (sum == Math.floor(sum)) {
+        if (sumWithDecimal == Math.floor(sumWithDecimal)) {
             result = true;
         } else result = false;
         return result;
@@ -179,15 +264,16 @@ public class Account {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(boolean status, String currentlyLoggedIn) {
         this.status = status;
+        this.currentlyLoggedIn = currentlyLoggedIn;
     }
 
     public String getPersonNummer() {
-        return personNummer;
+        return this.currentlyLoggedIn;
     }
 
-    public void setPersonNummer(String personNummer) {
+    /*public void setPersonNummer(String personNummer) {
         this.personNummer = personNummer;
     }
 
@@ -198,5 +284,5 @@ public class Account {
 
     public String getAccountPassword() {
         return accountPassword;
-    }
+    }*/
 }
