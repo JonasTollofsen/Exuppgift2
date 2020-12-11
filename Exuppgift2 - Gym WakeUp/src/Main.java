@@ -4,28 +4,29 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws Exception {
         Scanner userInput = new Scanner(System.in);
-        Account account = new Account();
+        AccountDB database = new AccountDB();
+        Passbokning passbokning = new Passbokning();
         int menyVal;
         do {
-            printMeny(account.getStatus());
+            printMeny(database.getStatus());
             menyVal = userInput.nextInt();
             userInput.nextLine();
             switch(menyVal) {
                 case 1:
-                    account.loggaIn();
+                    database.loggaIn();
                     break;
                 case 2:
                     try {
-                        account.bliMedlem();
+                        database.createAccount();
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                 }
                     break;
                 case 3:
-                    account.bokaPass();
+                    passbokning.bokaPass();
                     break;
                 case 4:
-                    account.loggaut();
+                    database.loggaut();
                     break;
                 case 5:
                     System.out.println("Välkommen åter.");
