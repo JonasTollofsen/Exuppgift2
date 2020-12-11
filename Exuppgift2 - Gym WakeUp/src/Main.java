@@ -40,8 +40,8 @@ public class Main {
     public static void printMeny(boolean status) {
         if (status) {
             System.out.println("3. Boka pass");
-            System.out.println("4. logga ut");
-            System.out.println("5. avsluta");
+            System.out.println("4. Logga ut");
+            System.out.println("5. Avsluta");
         } else {
             System.out.println("1. Logga in");
             System.out.println("2. Bli medlem");
