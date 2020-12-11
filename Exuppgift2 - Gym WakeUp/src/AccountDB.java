@@ -1,42 +1,53 @@
+
+// Import av några bibliotek som klassen använder.
 import java.util.ArrayList;
 import java.util.Scanner;
 
+// Denna klass innehåller alla metoder för all typ av medlemshantering, t ex logga in/ut, skapa medlemskonto och tillhörande logik i respektive metoder
+
 public class AccountDB {
+    // Håller VEM (personnummer) som för närvarande är inloggad i aktuell instans
     private static String currentlyLoggedIn;
+
+    // En boolean för att spara ATT sessionen är inloggad (används för menyhanteringen bl a)
     private static boolean status;
+
+    // Arraylist som håller olika Accounts-klasser - olika medlemskonton  - jämför med vår databas över medlemmar, dock utan databas.. :-)
     private static ArrayList<Account> accountDatabase = new ArrayList<>();
 
+
+    // Metod för att skapa nytt medlemskonto
     public void createAccount() throws Exception {
-        ArrayList<Account> accountList = new ArrayList<>();
-        accountList = accountDatabase;
+        // Deklaration av olika variabler som temporärt håller indata från användaren
         String password;
         String name;
         String requestedPersonnummer;
-        boolean personnummerControl;
-
-            if (this.getStatus()) {
-                throw new Exception("Du är inloggad och är redan medlem.");
-            } else {
-                Scanner userInput = new Scanner(System.in);
-
-            do {
-                System.out.println("Vänligen ange personnummer i följande format ÅÅMMDD-XXXX: ");
+        boolean personnummerControl;   // Används som returvariabel från Lunaalgoritmen som kontrollerar personnumret
+        if (this.getStatus()) {    // Kontroll att användaren är inloggad - då går det inte att bli medlem igen. Man kan skapa flera medlemmar men inte som inloggad.
+            throw new Exception("Du är inloggad och är redan medlem. Vill du skapa ett nytt medlemskonto måste du logga ut först.");
+        } else {
+            Scanner userInput = new Scanner(System.in);
+            do {     // Do-while-loop till dess användaren anger giltigt personnummer
+                System.out.print("Vänligen ange personnummer i följande format ÅÅMMDD-XXXX: ");
                 requestedPersonnummer = userInput.nextLine();
-                personnummerControl = luhnAlgorithm(requestedPersonnummer);
-                    if (!personnummerControl) {
-                        System.out.println("Felaktigt personnummer, vänligen försök igen");
-                    }
-                } while (!personnummerControl);
+                personnummerControl = luhnAlgorithm(requestedPersonnummer);   // Här kontrolleras att personnummer är ett personnummer i korrekt format enligt luhnalgoritmen
+                if (!personnummerControl) {  // Ifall fel personnummerinmatning
+                    System.out.println("Felaktigt personnummer, vänligen försök igen");
+                }
+            } while (!personnummerControl);  // Vi loopar till dess användaren angett korrekt personnummer
 
+            // Kontroll så att inte samma person blir medlem dubbelt
             if (personnummerCheck(requestedPersonnummer)) {
                 throw new Exception("Personnumret är redan registrerat, vänligen logga in");
             }
 
-            System.out.println("Vänligen ange namn: ");
+            // Nu är personnumret OK så vi mer om namn, lösenord och att välja längd på medlemskapet
+            System.out.print("Vänligen ange namn: ");
             name = userInput.nextLine();
 
-            System.out.println("Vänligen ange lösenord: ");
-            password = requestedPersonnummer + userInput.nextLine();
+            System.out.print("Vänligen ange lösenord: ");
+            // password = requestedPersonnummer + userInput.nextLine();
+            password = userInput.nextLine();
 
             System.out.println("");
             System.out.println("PRISLISTA:");
@@ -47,35 +58,40 @@ public class AccountDB {
             System.out.println("Längre än 12 månader – 250 SEK/månad");
             System.out.println();
 
-            int membershipPrice;
-            int membershiplength;
+            int membershipPrice;      // Används för hålla hela medlemskostnaden
+            int membershiplength;     // Temporär variabel för att beräkna medlemskapskostnaden
             do {
-            System.out.println("Hur många månader vill du vara medlem: ");
-            membershiplength = userInput.nextInt();
-            membershipPrice = calcMembership(membershiplength);
-            if (membershiplength <=0){
-                System.out.println("Felaktigt antal månader, vänligen försök igen");
-            }
+                System.out.print("Hur många månader vill du vara medlem: ");
+                membershiplength = userInput.nextInt();
+                membershipPrice = calcMembership(membershiplength);   // Metod som beräknar priset för hela medlemskapet
+                if (membershiplength <=0){  // Felhantering ifall medlemen väljer för kort medlemskap
+                    System.out.println("Felaktigt antal månader, vänligen försök igen");
+                }
             } while (membershiplength <= 0);
             System.out.print("Totalt att betala: ");
             System.out.print(membershipPrice);
             System.out.println(" SEK");
             System.out.printf("Välkommen som medlem %s!%n", name);
-
-                accountList.add(new Account(requestedPersonnummer, password, name));
-                }
-            }
-
-    public boolean personnummerCheck(String personnummer) {
-        if (accountDatabase.contains(personnummer)) {
-            return true;
-        } else return false;
+            // Här skapas nya kontot och sparas ner i en ny instans av klassen Account
+            accountDatabase.add(new Account(requestedPersonnummer, password, name));
+        }
     }
 
+    // Metod för att kontrollera så att det inte finns dubletter av en ny användare som skall läggas upp
+    public boolean personnummerCheck(String personnummer) {
+        for (Account c : accountDatabase){
+            if (c.getPersonnummer().equals(personnummer)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Metod för att beräkna totalkostnaden för medlemskapet. Indata är antal månder. Olika pris per månad beroende på medlemskapets längd.
     public int calcMembership(int months) {
         int price;
         int totalprice;
-        int baseMembership = 100;
+        int baseMembership = 100;   // Ett baspris som läggs på medlemskapet oavsett längd.
         if (months >= 1 && months <= 2) {
             price = 400;
         } else {
@@ -89,45 +105,50 @@ public class AccountDB {
                 }
             }
         }
-        totalprice = price * months + baseMembership;
-        return totalprice;
+        totalprice = price * months + baseMembership;  // Totalpriset beräknas här.
+        return totalprice;   // returneras här
     }
 
+    // Metod för att logga in en användare
     public void loggaIn() {
         Scanner userInput = new Scanner(System.in);
         String personnummerAttempt;
         String passwordAttempt;
 
         if (this.getStatus()) {
-            System.out.println("Du är redan inloggad");
+            System.out.println("Du är redan inloggad");    // Man kan inte logga in om man redan är inloggad..
         } else {
-
+            // Vi frågar efter personnummer (som används som användarnamn) samt tillhörande lösenord.
             System.out.println("Vänligen logga in");
-            System.out.println("Personnummer: ");
+            System.out.print("Personnummer: ");
             personnummerAttempt = userInput.next();
-            System.out.println("Lösenord: ");
+            System.out.print("Lösenord: ");
             passwordAttempt = userInput.next();
 
-            passwordAttempt = personnummerAttempt + passwordAttempt;
-
+            // Här sker kontrollen mot vår Accounts-databas att användaren finns och att det är rätt lösenord angett
             for (Account c : accountDatabase){
                 if (c.getPersonnummer().equals(personnummerAttempt) && c.getPassword().equals(passwordAttempt)){
-
-                setStatus(true, personnummerAttempt);
-                System.out.printf("Välkommen %s!%n", c.getName());
+                    setStatus(true, personnummerAttempt);
+                    System.out.printf("Välkommen %s!%n", c.getName());
                 }
             }
-            if (!getStatus()){
+            if (!getStatus()) {
                 System.out.println("Fel inloggning!");
             }
         }
     }
 
+    // Metod för att logga ut
     public void loggaut() {
-        setStatus(false, "NULL");
-        System.out.println("Du är utloggad");
+        if (this.getStatus()) {
+            setStatus(false, "NULL");
+            System.out.println("Du är nu utloggad.");
+        } else {
+            System.out.println("Felaktigt menyval.");    // Man kan inte välja att logga ut ifall man inte är inloggad. Dolt i menyn men kontroll för säkerhetsskull.
+        }
     }
 
+    // Metod för att verifiera att ett personnummer uppfyller kraven enligt luhnalgoritmen
     public static boolean luhnAlgorithm(String persnummer) {
         boolean result; // Result-variabel skapas, denna kommer senare att returneras när metoden avslutas
 
@@ -199,15 +220,18 @@ public class AccountDB {
     }
 
 
+    // Metod för att returnera ifall en användare är inloggad eller ej
     public static boolean getStatus() {
         return status;
     }
 
+    // Metod för att sätta ifall en session med en användare är inloggad eller ej.
     public void setStatus(boolean status, String currentlyLoggedIn) {
         this.status = status;
         this.currentlyLoggedIn = currentlyLoggedIn;
     }
 
+    // Get-metod för att kontrollera VEM som är inloggad
     public static String getCurrentlyLoggedIn() {
         return currentlyLoggedIn;
     }

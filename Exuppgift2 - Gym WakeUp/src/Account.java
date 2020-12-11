@@ -1,5 +1,8 @@
+// Denna klass Account håller information om respektive medlemskonto
+
 public class Account {
 
+    // Vi sparar personnummer, lösneord och namn på medlemmar.
     private String personnummer;
     private String password;
     private String name;
@@ -11,6 +14,7 @@ public class Account {
         this.name = name;
     }
 
+    // Setters och getters för respektive sparat attribut
     public String getPersonnummer() {
         return personnummer;
     }
